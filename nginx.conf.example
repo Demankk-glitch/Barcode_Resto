@@ -1,0 +1,36 @@
+# Contoh Konfigurasi Nginx Reverse Proxy untuk IaaS VPS (Ubuntu / Debian / AlmaLinux)
+# Tempatkan file ini di: /etc/nginx/sites-available/restoran
+# Lalu aktifkan: ln -s /etc/nginx/sites-available/restoran /etc/nginx/sites-enabled/
+# Uji konfigurasi: nginx -t && systemctl reload nginx
+
+server {
+    listen 80;
+    server_name restoran.example.com; # Ganti dengan domain atau IP publik server Anda
+
+    # Tingkatkan ukuran maksimal body request jika diperlukan
+    client_max_body_size 16M;
+
+    # Akses langsung untuk file statis (CSS, JS, gambar) untuk performa tinggi
+    location /static/ {
+        alias /var/www/restoran/static/;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+        access_log off;
+    }
+
+    # Teruskan seluruh request dinamis ke server WSGI Gunicorn
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Mendukung timeout koneksi long-polling
+        proxy_connect_timeout 60s;
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
+    }
+}

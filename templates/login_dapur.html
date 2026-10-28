@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}STAFF ACCESS // KITCHEN DISPLAY SYSTEM{% endblock %}
+
+{% block nav_cart_button %}
+<!-- Nonaktifkan tombol cart pada halaman login staf -->
+<div class="font-mono text-xs text-zinc-500 uppercase">[RESTRICTED ZONE]</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-12 border-2 border-white/20 bg-carbon-card p-6 sm:p-8 shadow-brutalist-card">
+    <div class="text-center mb-6">
+        <div class="inline-block bg-neon-amber text-black font-mono font-bold text-[10px] px-2.5 py-1 tracking-widest uppercase mb-3">
+            SECURITY // ACCESS CONTROL
+        </div>
+        <h1 class="text-3xl font-black uppercase tracking-tight text-white font-grotesk">
+            OTORISASI STAF DAPUR
+        </h1>
+        <p class="font-mono text-xs text-zinc-400 mt-2">
+            Area operasional dapur dilindungi oleh access control. Masukkan PIN keamanan untuk membuka Kitchen Display System.
+        </p>
+    </div>
+
+    <!-- LOGIN PIN FORM -->
+    <form method="POST" action="{{ url_for('login_dapur') }}" class="space-y-5">
+        <div>
+            <label for="pin" class="block font-mono text-xs text-zinc-300 uppercase mb-2">
+                PIN KEAMANAN STAF:
+            </label>
+            <input type="password" name="pin" id="pin" maxlength="10" required autofocus
+                   placeholder="••••"
+                   class="w-full bg-carbon border-2 border-zinc-700 focus:border-neon-lime focus:outline-none p-3.5 font-mono text-center text-2xl tracking-[0.5em] text-neon-lime">
+            <span class="block font-mono text-[11px] text-zinc-500 mt-2">
+                * Default PIN untuk pengujian pengembangan: <strong class="text-zinc-300 font-mono">1234</strong>
+            </span>
+        </div>
+
+        <button type="submit" 
+                class="w-full bg-white text-black font-black font-grotesk text-sm tracking-wider uppercase py-3.5 px-4 border-2 border-white shadow-brutalist hover:bg-neon-lime hover:border-neon-lime active:translate-x-0.5 active:translate-y-0.5 transition-all">
+            BUKA TERMINAL DAPUR →
+        </button>
+    </form>
+
+    <div class="mt-8 pt-6 border-t border-zinc-800 text-center font-mono text-xs text-zinc-500">
+        Bukan staf dapur? 
+        <a href="{{ url_for('index') }}" class="text-neon-lime hover:underline font-bold">
+            Kembali ke E-Menu Pelanggan
+        </a>
+    </div>
+</div>
+{% endblock %}

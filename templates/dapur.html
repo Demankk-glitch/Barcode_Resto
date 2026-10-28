@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block title %}DAPUR // KITCHEN DISPLAY SYSTEM{% endblock %}
+
+{% block nav_cart_button %}
+<div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 border border-neon-lime/40 bg-zinc-900/90 px-3 py-1 text-xs font-mono text-neon-lime">
+        <span class="w-2.5 h-2.5 rounded-full bg-neon-lime animate-pulse"></span>
+        <span class="font-bold tracking-wider">LIVE POLLING // 5s</span>
+    </div>
+    <a href="{{ url_for('logout_dapur') }}" class="font-mono text-xs text-zinc-400 hover:text-neon-red border border-zinc-800 hover:border-neon-red px-2.5 py-1 transition-colors uppercase">
+        LOGOUT
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- HEADER DASHBOARD DAPUR (DARK MODE BRUTALIST STREETWEAR) -->
+<div class="mb-8 border-2 border-carbon-border bg-carbon-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-brutalist-card">
+    <div>
+        <div class="inline-flex items-center gap-2 bg-neon-amber text-black font-mono font-bold text-xs px-2.5 py-0.5 tracking-widest uppercase mb-2">
+            TERMINAL OPERASIONAL // DAPUR
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white font-grotesk">
+            KITCHEN DISPLAY SYSTEM
+        </h1>
+        <p class="font-mono text-xs text-zinc-400 mt-1">
+            Antrean pesanan aktif berstatus <strong>Menunggu</strong>. Terhubung otomatis via Fetch API polling setiap 5 detik.
+        </p>
+    </div>
+
+    <!-- STATS WIDGETS -->
+    <div class="flex items-center gap-4 font-mono">
+        <div class="border-2 border-neon-amber bg-zinc-900/90 px-4 py-3 min-w-[140px] shadow-[2px_2px_0px_#ffb703]">
+            <span class="text-[10px] text-zinc-400 uppercase tracking-widest block">PESANAN MENUNGGU</span>
+            <span id="stat-antrean-count" class="text-3xl font-black text-neon-amber font-grotesk">
+                {{ pesanan_masuk|length }}
+            </span>
+        </div>
+
+        <div class="border-2 border-zinc-700 bg-zinc-900 px-4 py-3 min-w-[130px]">
+            <span class="text-[10px] text-zinc-400 uppercase tracking-widest block">STATUS SYNC</span>
+            <span id="sync-status" class="text-sm font-bold text-neon-lime font-mono block mt-1">
+                TERHUBUNG
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- CSS GRID LAYOUT UNTUK KARTU PESANAN (CARD) -->
+<section>
+    <div id="orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        {% if pesanan_masuk|length == 0 %}
+        <!-- EMPTY STATE BANNER -->
+        <div id="no-orders-banner" class="col-span-full py-20 text-center border-2 border-dashed border-zinc-800 bg-carbon-card">
+            <div class="font-mono text-4xl text-zinc-700 mb-3">[ ANTRIAN BERSIH ]</div>
+            <div class="font-grotesk text-2xl font-black text-zinc-300 uppercase">BELUM ADA PESANAN MASUK</div>
+            <p class="font-mono text-xs text-zinc-500 mt-1">
+                Pesanan baru pelanggan akan otomatis muncul sebagai kartu di layar ini setiap 5 detik.
+            </p>
+        </div>
+        {% else %}
+            {% for order in pesanan_masuk %}
+            <!-- KARTU PESANAN DAPUR (CARD) -->
+            <article class="order-card border-2 border-neon-amber bg-carbon-card flex flex-col justify-between shadow-brutalist-card transition-all duration-300"
+                     id="order-card-{{ order.id }}" data-id="{{ order.id }}">
+                
+                <div>
+                    <!-- HEADER KARTU (NOMOR MEJA & WAKTU) -->
+                    <div class="p-4 border-b-2 border-zinc-800 flex items-center justify-between bg-zinc-900/70">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-neon-amber rounded-full animate-ping"></span>
+                            <span class="font-grotesk font-black text-xl text-white tracking-tight">
+                                TABLE // {{ order.nomor_meja }}
+                            </span>
+                        </div>
+                        <span class="font-mono text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 border border-zinc-700 font-bold">
+                            #{{ order.id }} • {{ order.created_at.strftime("%H:%M") }}
+                        </span>
+                    </div>
+
+                    <!-- DAFTAR ITEM PESANAN -->
+                    <div class="p-5 space-y-3 font-mono">
+                        <div class="text-[11px] text-zinc-500 uppercase tracking-widest">[RINCIAN PESANAN]:</div>
+                        <ul class="space-y-2 text-sm text-zinc-200">
+                            {% for item in order.items %}
+                            <li class="flex items-start justify-between border-b border-zinc-800/70 pb-2">
+                                <span class="font-bold text-white">
+                                    <span class="text-neon-amber font-mono font-black mr-1.5">[{{ item.kuantitas }}x]</span> 
+                                    {{ item.nama_menu }}
+                                </span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        {% if order.catatan %}
+                        <div class="mt-4 p-2.5 border border-dashed border-zinc-700 bg-zinc-900/90 text-xs text-zinc-300">
+                            <span class="text-zinc-500 font-bold block uppercase text-[10px]">CATATAN MEJA:</span>
+                            "{{ order.catatan }}"
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- FOOTER KARTU & TOMBOL SELESAI -->
+                <div class="p-4 border-t-2 border-zinc-800 bg-zinc-900/40 flex items-center justify-between gap-3">
+                    <span class="font-mono text-xs font-bold text-neon-amber bg-zinc-900 px-2.5 py-1 border border-neon-amber/50 uppercase">
+                        STATUS: MENUNGGU
+                    </span>
+                    
+                    <!-- TOMBOL SELESAI (MEMANGGIL POST /selesaikan/<id>) -->
+                    <button type="button" onclick="selesaikanPesanan({{ order.id }})"
+                            class="bg-white text-black font-black font-grotesk text-xs uppercase px-5 py-2.5 border-2 border-white hover:bg-neon-lime hover:border-neon-lime active:translate-x-0.5 active:translate-y-0.5 shadow-sm transition-all">
+                        SELESAI ✓
+                    </button>
+                </div>
+            </article>
+            {% endfor %}
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<!-- JAVASCRIPT POLLING FETCH API (5 DETIK) & AKSI SELESAI -->
+<script>
+    // Set untuk mencatat ID pesanan yang sedang tampil di layar
+    const displayedOrderIds = new Set();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Catat pesanan awal yang sudah dirender server
+        document.querySelectorAll('.order-card').forEach(card => {
+            const id = parseInt(card.dataset.id);
+            if (id) displayedOrderIds.add(id);
+        });
+
+        // Jalankan polling setiap 5000ms (5 detik)
+        setInterval(pollPesananDapur, 5000);
+    });
+
+    /**
+     * Polling ke route GET /api/pesanan setiap 5 detik
+     */
+    async function pollPesananDapur() {
+        const syncStatus = document.getElementById('sync-status');
+        try {
+            const response = await fetch('/api/pesanan', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                if (syncStatus) {
+                    syncStatus.innerText = 'OFFLINE (' + response.status + ')';
+                    syncStatus.className = 'text-sm font-bold text-neon-red font-mono block mt-1';
+                }
+                return;
+            }
+
+            if (syncStatus) {
+                syncStatus.innerText = 'TERHUBUNG';
+                syncStatus.className = 'text-sm font-bold text-neon-lime font-mono block mt-1';
+            }
+
+            const data = await response.json();
+            const orders = data.pesanan || [];
+            updateGridDapur(orders);
+
+        } catch (error) {
+            console.error('Error saat polling /api/pesanan:', error);
+            if (syncStatus) {
+                syncStatus.innerText = 'GANGGUAN KONEKSI';
+                syncStatus.className = 'text-sm font-bold text-neon-red font-mono block mt-1';
+            }
+        }
+    }
+
+    /**
+     * Memperbarui antarmuka CSS Grid saat data baru diterima
+     */
+    function updateGridDapur(orders) {
+        const grid = document.getElementById('orders-grid');
+        const counter = document.getElementById('stat-antrean-count');
+        if (!grid) return;
+
+        if (counter) counter.innerText = orders.length;
+
+        const currentIncomingIds = new Set(orders.map(o => o.id));
+
+        // 1. Hapus kartu yang sudah diselesaikan dari sistem lain
+        displayedOrderIds.forEach(id => {
+            if (!currentIncomingIds.has(id)) {
+                const el = document.getElementById(`order-card-${id}`);
+                if (el) el.remove();
+                displayedOrderIds.delete(id);
+            }
+        });
+
+        // 2. Tampilkan banner kosong jika antrean bersih
+        if (orders.length === 0) {
+            grid.innerHTML = `
+                <div id="no-orders-banner" class="col-span-full py-20 text-center border-2 border-dashed border-zinc-800 bg-carbon-card">
+                    <div class="font-mono text-4xl text-zinc-700 mb-3">[ ANTRIAN BERSIH ]</div>
+                    <div class="font-grotesk text-2xl font-black text-zinc-300 uppercase">BELUM ADA PESANAN MASUK</div>
+                    <p class="font-mono text-xs text-zinc-500 mt-1">
+                        Pesanan baru pelanggan akan otomatis muncul sebagai kartu di layar ini setiap 5 detik.
+                    </p>
+                </div>
+            `;
+            return;
+        } else {
+            const banner = document.getElementById('no-orders-banner');
+            if (banner) banner.remove();
+        }
+
+        // 3. Tambahkan kartu pesanan baru jika belum ada di layar
+        orders.forEach(order => {
+            if (!displayedOrderIds.has(order.id)) {
+                displayedOrderIds.add(order.id);
+                const cardMarkup = renderCardMarkup(order, true);
+                grid.insertAdjacentHTML('afterbegin', cardMarkup);
+            }
+        });
+    }
+
+    /**
+     * Template generator kartu pesanan (card)
+     */
+    function renderCardMarkup(order, isNew = false) {
+        let itemsHtml = '';
+        order.items.forEach(item => {
+            itemsHtml += `
+                <li class="flex items-start justify-between border-b border-zinc-800/70 pb-2">
+                    <span class="font-bold text-white">
+                        <span class="text-neon-amber font-mono font-black mr-1.5">[${item.kuantitas}x]</span> 
+                        ${item.nama_menu}
+                    </span>
+                </li>
+            `;
+        });
+
+        let catatanBlock = '';
+        if (order.catatan) {
+            catatanBlock = `
+                <div class="mt-4 p-2.5 border border-dashed border-zinc-700 bg-zinc-900/90 text-xs text-zinc-300">
+                    <span class="text-zinc-500 font-bold block uppercase text-[10px]">CATATAN MEJA:</span>
+                    "${order.catatan}"
+                </div>
+            `;
+        }
+
+        const animClass = isNew ? 'new-order-flash' : '';
+
+        return `
+            <article class="order-card border-2 border-neon-amber bg-carbon-card flex flex-col justify-between shadow-brutalist-card transition-all duration-300 ${animClass}"
+                     id="order-card-${order.id}" data-id="${order.id}">
+                <div>
+                    <div class="p-4 border-b-2 border-zinc-800 flex items-center justify-between bg-zinc-900/70">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-neon-amber rounded-full animate-ping"></span>
+                            <span class="font-grotesk font-black text-xl text-white tracking-tight">
+                                TABLE // ${order.nomor_meja}
+                            </span>
+                        </div>
+                        <span class="font-mono text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 border border-zinc-700 font-bold">
+                            #${order.id} • ${order.created_at}
+                        </span>
+                    </div>
+
+                    <div class="p-5 space-y-3 font-mono">
+                        <div class="text-[11px] text-zinc-500 uppercase tracking-widest">[RINCIAN PESANAN]:</div>
+                        <ul class="space-y-2 text-sm text-zinc-200">
+                            ${itemsHtml}
+                        </ul>
+                        ${catatanBlock}
+                    </div>
+                </div>
+
+                <div class="p-4 border-t-2 border-zinc-800 bg-zinc-900/40 flex items-center justify-between gap-3">
+                    <span class="font-mono text-xs font-bold text-neon-amber bg-zinc-900 px-2.5 py-1 border border-neon-amber/50 uppercase">
+                        STATUS: MENUNGGU
+                    </span>
+                    <button type="button" onclick="selesaikanPesanan(${order.id})"
+                            class="bg-white text-black font-black font-grotesk text-xs uppercase px-5 py-2.5 border-2 border-white hover:bg-neon-lime hover:border-neon-lime active:translate-x-0.5 active:translate-y-0.5 shadow-sm transition-all">
+                        SELESAI ✓
+                    </button>
+                </div>
+            </article>
+        `;
+    }
+
+    /**
+     * Memanggil rute POST /selesaikan/<id> dan menghapus kartu dari layar
+     */
+    async function selesaikanPesanan(orderId) {
+        const card = document.getElementById(`order-card-${orderId}`);
+        const btn = card ? card.querySelector('button') : null;
+
+        if (btn) {
+            btn.innerText = 'MEMPROSES...';
+            btn.disabled = true;
+        }
+
+        try {
+            const response = await fetch(`/selesaikan/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                alert('Gagal menyelesaikan pesanan: ' + (errData.error || response.statusText));
+                if (btn) {
+                    btn.innerText = 'SELESAI ✓';
+                    btn.disabled = false;
+                }
+                return;
+            }
+
+            // Animasi transisi keluar dan penghapusan kartu dari DOM
+            if (card) {
+                card.style.transition = 'all 0.35s ease-out';
+                card.style.transform = 'scale(0.9) translateY(10px)';
+                card.style.opacity = '0';
+
+                setTimeout(() => {
+                    card.remove();
+                    displayedOrderIds.delete(orderId);
+
+                    // Update total counter
+                    const remainingCount = displayedOrderIds.size;
+                    const counter = document.getElementById('stat-antrean-count');
+                    if (counter) counter.innerText = remainingCount;
+
+                    // Jika tidak ada pesanan tersisa, tampilkan banner kosong
+                    if (remainingCount === 0) {
+                        const grid = document.getElementById('orders-grid');
+                        if (grid) {
+                            grid.innerHTML = `
+                                <div id="no-orders-banner" class="col-span-full py-20 text-center border-2 border-dashed border-zinc-800 bg-carbon-card">
+                                    <div class="font-mono text-4xl text-zinc-700 mb-3">[ ANTRIAN BERSIH ]</div>
+                                    <div class="font-grotesk text-2xl font-black text-zinc-300 uppercase">BELUM ADA PESANAN MASUK</div>
+                                    <p class="font-mono text-xs text-zinc-500 mt-1">
+                                        Pesanan baru pelanggan akan otomatis muncul sebagai kartu di layar ini setiap 5 detik.
+                                    </p>
+                                </div>
+                            `;
+                        }
+                    }
+                }, 350);
+            }
+
+        } catch (error) {
+            console.error('Kesalahan jaringan saat memanggil /selesaikan/' + orderId, error);
+            alert('Terjadi kesalahan jaringan saat menyelesaikan pesanan.');
+            if (btn) {
+                btn.innerText = 'SELESAI ✓';
+                btn.disabled = false;
+            }
+        }
+    }
+</script>
+{% endblock %}

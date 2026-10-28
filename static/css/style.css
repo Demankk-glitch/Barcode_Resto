@@ -1,0 +1,56 @@
+/* STREETWEAR & INDIE ALBUM COVER AESTHETIC STYLES */
+
+/* Custom Dark Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ccff00;
+}
+
+/* Brutalist Button & Card Transitions */
+.menu-card {
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.menu-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Category Filter Active Pill */
+.category-btn.active {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ffffff !important;
+}
+
+/* Card Flash Animation untuk Pesanan Baru di Dapur */
+@keyframes neonPulseCard {
+    0% {
+        box-shadow: 0 0 0 0 rgba(204, 255, 0, 0.7);
+        border-color: #ccff00;
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(204, 255, 0, 0);
+        border-color: #ffb703;
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(204, 255, 0, 0);
+        border-color: #ffb703;
+    }
+}
+
+.new-order-flash {
+    animation: neonPulseCard 2s ease-out 3;
+}

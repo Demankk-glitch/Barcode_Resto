@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}E-MENU // OFF-PLATE BISTRO ARCHIVE{% endblock %}
+
+{% block content %}
+<!-- STREETWEAR HERO BANNER (INDIE ALBUM COVER AESTHETIC) -->
+<section class="mb-12 border-2 border-white/20 bg-carbon-card p-6 sm:p-10 relative overflow-hidden shadow-brutalist-card">
+    <div class="absolute -right-10 -bottom-10 opacity-5 pointer-events-none select-none font-black text-9xl font-grotesk tracking-tighter">
+        AUDIO
+    </div>
+
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 relative z-10">
+        <div class="max-w-2xl">
+            <div class="inline-flex items-center gap-2 bg-neon-lime text-black font-mono font-bold text-xs px-2.5 py-1 tracking-widest uppercase mb-4">
+                <span>NEW RELEASE</span>
+                <span>•</span>
+                <span>SEASONAL MENU 2026</span>
+            </div>
+            <h1 class="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white leading-none">
+                EATS & BEATS <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-lime to-white">
+                    CURATED FLAVORS
+                </span>
+            </h1>
+            <p class="mt-4 text-zinc-400 font-mono text-xs sm:text-sm leading-relaxed max-w-xl">
+                Koleksi menu kuliner eksperimental bernuansa streetwear modern. Pilih hidangan favorit Anda, tentukan kuantitas, dan kirim pesanan langsung ke layar antrean dapur.
+            </p>
+        </div>
+
+        <!-- QR TABLE STATUS HERO WIDGET -->
+        <div class="bg-carbon border-2 {% if meja %}border-neon-lime{% else %}border-zinc-700{% endif %} p-5 min-w-[280px] shadow-[4px_4px_0px_#18181b]">
+            <div class="font-mono text-xs text-zinc-400 uppercase tracking-widest mb-1 flex items-center justify-between">
+                <span>QR CODE STATUS</span>
+                {% if meja %}
+                <span class="w-2 h-2 rounded-full bg-neon-lime animate-ping"></span>
+                {% endif %}
+            </div>
+            
+            {% if meja %}
+            <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-black text-neon-lime tracking-tight font-grotesk">TABLE // {{ meja }}</span>
+            </div>
+            <p class="font-mono text-[11px] text-zinc-400 mt-1">
+                ✓ Terhubung via QR Code Meja. Pesanan Anda akan dikirim atas nama meja ini.
+            </p>
+            {% else %}
+            <div class="text-lg font-bold text-zinc-300 font-grotesk">MEJA BELUM TERDETEKSI</div>
+            <p class="font-mono text-[11px] text-zinc-400 mt-1 mb-3">
+                Silakan scan QR di meja Anda atau masukkan nomor meja secara manual:
+            </p>
+            <form method="GET" action="{{ url_for('index') }}" class="flex gap-2">
+                <input type="text" name="meja" placeholder="Contoh: 12" required 
+                       class="bg-zinc-900 border border-zinc-600 px-3 py-1.5 font-mono text-xs text-white uppercase focus:border-neon-lime focus:outline-none w-full">
+                <button type="submit" class="bg-white text-black font-bold font-mono text-xs px-3 py-1.5 hover:bg-neon-lime uppercase">
+                    SET
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- CATEGORY FILTER PILLS -->
+<div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-8 border-b-2 border-carbon-border pb-4 font-mono text-xs">
+    <span class="text-zinc-500 font-bold uppercase tracking-widest mr-2">[GENRE FILTER]:</span>
+    <button onclick="filterCategory('ALL')" class="category-btn active px-3 py-1.5 border-2 border-white bg-white text-black font-bold tracking-wider uppercase transition-all">
+        SEMUA ({{ menu_items|length }})
+    </button>
+    <button onclick="filterCategory('Makanan')" class="category-btn px-3 py-1.5 border-2 border-zinc-800 bg-carbon-card text-zinc-300 font-bold tracking-wider uppercase hover:border-zinc-500 transition-all">
+        MAKANAN
+    </button>
+    <button onclick="filterCategory('Minuman')" class="category-btn px-3 py-1.5 border-2 border-zinc-800 bg-carbon-card text-zinc-300 font-bold tracking-wider uppercase hover:border-zinc-500 transition-all">
+        MINUMAN
+    </button>
+    <button onclick="filterCategory('Penutup')" class="category-btn px-3 py-1.5 border-2 border-zinc-800 bg-carbon-card text-zinc-300 font-bold tracking-wider uppercase hover:border-zinc-500 transition-all">
+        PENUTUP
+    </button>
+</div>
+
+<!-- MENU GRID (ALBUM COVER STREETWEAR PRESENTATION) -->
+<section id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+    {% for item in menu_items %}
+    <article class="menu-card border-2 border-carbon-border bg-carbon-card flex flex-col justify-between group hover:border-neon-lime transition-all duration-200 shadow-brutalist-card hover:shadow-brutalist" 
+             data-category="{{ item.kategori }}"
+             data-id="{{ item.id }}"
+             data-name="{{ item.nama }}"
+             data-price="{{ item.harga }}">
+        
+        <div>
+            <!-- ALBUM ARTWORK CONTAINER -->
+            <div class="relative aspect-square overflow-hidden bg-zinc-900 border-b-2 border-carbon-border">
+                <img src="{{ item.gambar_url }}" alt="{{ item.nama }}" 
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-300">
+                
+                <!-- STREETWEAR CORNER STICKER BADGES -->
+                <div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+                    <span class="bg-black text-neon-lime border border-neon-lime font-mono text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest shadow-sm">
+                        {{ item.track_code }}
+                    </span>
+                    <span class="bg-white text-black font-mono text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest">
+                        {{ item.kategori }}
+                    </span>
+                </div>
+
+                <div class="absolute bottom-3 right-3">
+                    <span class="bg-black/90 backdrop-blur-md text-white border border-white/30 font-grotesk text-sm font-black px-2.5 py-1 tracking-tight">
+                        IDR {{ "{:,}".format(item.harga).replace(",", ".") }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- ALBUM TRACK INFO -->
+            <div class="p-5">
+                <div class="flex items-start justify-between gap-2">
+                    <h3 class="font-black text-xl text-white uppercase tracking-tight leading-snug group-hover:text-neon-lime transition-colors">
+                        {{ item.nama }}
+                    </h3>
+                </div>
+                <p class="text-zinc-400 font-mono text-xs mt-2.5 leading-relaxed line-clamp-2">
+                    {{ item.deskripsi }}
+                </p>
+            </div>
+        </div>
+
+        <!-- QUANTITY FORM CONTROLS & ADD TO BAG -->
+        <div class="p-5 pt-0 border-t border-zinc-800/80 mt-2">
+            <div class="flex items-center justify-between gap-3 mt-4">
+                
+                <!-- STEPPER INPUT QUANTITY -->
+                <div class="flex items-center border-2 border-zinc-700 bg-carbon">
+                    <button type="button" onclick="decrementQty({{ item.id }})" 
+                            class="w-9 h-9 flex items-center justify-center font-mono font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+                        -
+                    </button>
+                    <input type="number" id="qty-input-{{ item.id }}" min="0" max="50" value="0" 
+                           onchange="onManualQtyChange({{ item.id }})"
+                           class="w-12 h-9 bg-transparent text-center font-mono text-sm font-bold text-white focus:outline-none border-x border-zinc-800 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    <button type="button" onclick="incrementQty({{ item.id }})" 
+                            class="w-9 h-9 flex items-center justify-center font-mono font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+                        +
+                    </button>
+                </div>
+
+                <!-- ADD TO BAG BUTTON -->
+                <button type="button" onclick="addToBag({{ item.id }})" 
+                        id="btn-add-{{ item.id }}"
+                        class="flex-1 bg-white text-black font-black font-grotesk text-xs tracking-wider uppercase py-2.5 px-3 border-2 border-white hover:bg-neon-lime hover:border-neon-lime active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_#18181b]">
+                    + TAMBAH KE BAG
+                </button>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+
+
+<!-- ==============================================================================
+     MODAL KERANJANG BELANJA (CART DRAWER / STREETWEAR RECEIPT MODAL)
+     ============================================================================== -->
+<div id="cart-modal" class="fixed inset-0 z-50 flex justify-end opacity-0 pointer-events-none transition-opacity duration-300">
+    
+    <!-- BACKDROP BLUR -->
+    <div id="cart-backdrop" onclick="toggleCartModal(false)" class="absolute inset-0 bg-black/85 backdrop-blur-md"></div>
+
+    <!-- MODAL CONTENT DRAWER -->
+    <div class="relative w-full max-w-md bg-carbon border-l-2 border-white/20 h-full flex flex-col justify-between z-10 shadow-2xl overflow-hidden">
+        
+        <!-- HEADER MODAL -->
+        <div class="p-6 border-b-2 border-carbon-border flex items-center justify-between bg-carbon-card">
+            <div>
+                <span class="font-mono text-[10px] tracking-widest text-neon-lime uppercase font-bold">[TRACKLIST / CHECKOUT]</span>
+                <h2 class="text-2xl font-black uppercase tracking-tight text-white">KERANJANG PESANAN</h2>
+            </div>
+            <button onclick="toggleCartModal(false)" class="w-10 h-10 border border-zinc-700 bg-zinc-900 text-zinc-300 hover:text-white hover:border-neon-lime flex items-center justify-center font-mono text-base font-bold transition-colors">
+                ✕
+            </button>
+        </div>
+
+        <!-- CART ITEMS LIST (RECEIPT STYLE) -->
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4">
+            <!-- Diisi secara dinamis oleh JavaScript -->
+            <div id="empty-cart-msg" class="py-16 text-center">
+                <div class="font-mono text-4xl mb-3 text-zinc-700">[ 0 / 0 ]</div>
+                <div class="font-grotesk font-black text-lg text-zinc-400 uppercase">KERANJANG MASIH KOSONG</div>
+                <p class="font-mono text-xs text-zinc-500 mt-1 max-w-xs mx-auto">
+                    Silakan pilih menu dari daftar di halaman untuk mulai membuat pesanan.
+                </p>
+            </div>
+        </div>
+
+        <!-- FOOTER & CHECKOUT FORM -->
+        <div class="p-6 border-t-2 border-carbon-border bg-carbon-card space-y-4">
+            
+            <!-- TABLE IDENTIFIER CONFIRMATION -->
+            <div class="flex items-center justify-between border border-zinc-800 bg-zinc-900/90 p-3 font-mono text-xs">
+                <span class="text-zinc-400">TUJUAN MEJA:</span>
+                <span class="font-bold text-neon-lime uppercase" id="cart-table-display">
+                    {% if meja %}TABLE // {{ meja }}{% else %}BELUM TERDAFTAR{% endif %}
+                </span>
+            </div>
+
+            <!-- FORM CHECKOUT AMAN -->
+            <form id="checkout-form" method="POST" action="{{ url_for('checkout') }}">
+                <input type="hidden" name="meja" id="form-meja" value="{{ meja if meja else '' }}">
+                
+                <!-- Dynamic hidden inputs for quantities are injected by JS -->
+                <div id="hidden-inputs-wrapper"></div>
+
+                <!-- ORDER NOTES (CATATAN KHUSUS) -->
+                <div class="mb-4">
+                    <label for="catatan" class="block font-mono text-[11px] text-zinc-400 uppercase mb-1.5">
+                        CATATAN KHUSUS DAPUR (OPSIONAL):
+                    </label>
+                    <input type="text" name="catatan" id="catatan" maxlength="200" 
+                           placeholder="Contoh: Sambal dipisah, tanpa tauge..."
+                           class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 font-mono text-xs text-white focus:border-neon-lime focus:outline-none">
+                </div>
+
+                <!-- TOTAL PRICE SUMMARY -->
+                <div class="border-t border-zinc-800 pt-3 flex items-baseline justify-between font-mono">
+                    <span class="text-xs uppercase text-zinc-400">TOTAL ESTIMASI:</span>
+                    <span id="cart-total-price" class="text-2xl font-black font-grotesk text-neon-lime">
+                        IDR 0
+                    </span>
+                </div>
+
+                <!-- SUBMIT BUTTON BRUTALIST -->
+                <button type="submit" id="btn-submit-order" disabled
+                        class="w-full mt-4 bg-neon-lime text-black font-black font-grotesk text-sm tracking-wider uppercase py-3.5 px-4 border-2 border-white shadow-brutalist hover:bg-white active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none transition-all">
+                    KIRIM PESANAN // KE DAPUR ->
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<!-- FLOATING BAR FOR MOBILE -->
+<div id="mobile-cart-bar" class="sm:hidden fixed bottom-4 left-4 right-4 z-30 opacity-0 pointer-events-none transition-all duration-300">
+    <button onclick="toggleCartModal(true)" class="w-full bg-neon-lime text-black font-black p-3.5 border-2 border-white shadow-brutalist flex items-center justify-between">
+        <span class="font-mono text-xs uppercase tracking-wider">BAG // <span id="mobile-cart-count">0</span> ITEMS</span>
+        <span id="mobile-cart-total" class="font-grotesk font-black text-sm">IDR 0</span>
+        <span class="font-mono text-xs font-bold uppercase underline">LIHAT BAG →</span>
+    </button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}

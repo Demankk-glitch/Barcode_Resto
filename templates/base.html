@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OFF-PLATE // INDIE EATS ARCHIVE{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN dengan konfigurasi kustom -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-lime': '#ccff00',
+                        'neon-amber': '#ffb703',
+                        'neon-red': '#ff0055',
+                        'carbon': '#09090b',
+                        'carbon-card': '#121215',
+                        'carbon-border': '#27272a',
+                    },
+                    fontFamily: {
+                        grotesk: ['Space Grotesk', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    },
+                    boxShadow: {
+                        'brutalist': '4px 4px 0px 0px #ccff00',
+                        'brutalist-white': '4px 4px 0px 0px #ffffff',
+                        'brutalist-card': '6px 6px 0px 0px #18181b',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts: Space Grotesk & Space Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Custom Streetwear Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-carbon text-zinc-100 font-grotesk min-h-screen flex flex-col antialiased selection:bg-neon-lime selection:text-black">
+
+    <!-- STREETWEAR BRUTALIST TOP NAVIGATION BAR -->
+    <header class="border-b-2 border-carbon-border bg-carbon/95 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- BRAND / LOGO (Indie Record Label Style) -->
+            <a href="{{ url_for('index', meja=meja if meja else None) }}" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 bg-neon-lime text-black font-black text-xl flex items-center justify-center border-2 border-white shadow-[2px_2px_0px_#ffffff] group-hover:rotate-6 transition-transform">
+                    OP
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-black text-lg sm:text-xl tracking-tighter uppercase leading-none group-hover:text-neon-lime transition-colors">
+                        OFF-PLATE // BISTRO
+                    </span>
+                    <span class="font-mono text-[10px] tracking-widest text-zinc-400 uppercase">
+                        AUDIO-CULINARY ARCHIVE • VOL. 01
+                    </span>
+                </div>
+            </a>
+
+            <!-- TABLE IDENTIFIER (QR CODE RESULT) & ACTIONS -->
+            <div class="flex items-center gap-3 sm:gap-5">
+                
+                <!-- MEJA STATUS BADGE -->
+                {% if meja %}
+                <div class="flex items-center gap-2 border-2 border-neon-lime bg-zinc-900/90 px-3 py-1.5 shadow-[2px_2px_0px_#ccff00]">
+                    <span class="w-2.5 h-2.5 rounded-full bg-neon-lime animate-pulse"></span>
+                    <span class="font-mono text-xs font-bold uppercase tracking-wider text-neon-lime">
+                        TABLE // {{ meja }}
+                    </span>
+                </div>
+                {% else %}
+                <div class="hidden sm:flex items-center gap-2 border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-zinc-400">
+                    <span class="w-2 h-2 rounded-full bg-zinc-500"></span>
+                    <span class="font-mono text-xs uppercase tracking-wider">
+                        NO TABLE DETECTED
+                    </span>
+                </div>
+                {% endif %}
+
+                <!-- CART TRIGGER BUTTON (Hanya di Halaman Pelanggan) -->
+                {% block nav_cart_button %}
+                <button id="cart-open-btn" class="relative flex items-center gap-2 bg-white text-black font-black px-4 py-2 text-xs sm:text-sm tracking-wider uppercase border-2 border-white shadow-brutalist hover:bg-neon-lime hover:border-neon-lime hover:shadow-brutalist-white active:translate-x-0.5 active:translate-y-0.5 transition-all">
+                    <span>BAG // CART</span>
+                    <span id="nav-cart-count" class="bg-black text-neon-lime font-mono px-2 py-0.5 text-xs font-bold">0</span>
+                </button>
+                {% endblock %}
+
+                <!-- KITCHEN DASHBOARD LINK / STATUS -->
+                <a href="{{ url_for('dashboard_dapur') }}" title="Area Operasional Dapur" class="text-zinc-500 hover:text-white font-mono text-xs tracking-widest uppercase border border-zinc-800 hover:border-zinc-500 px-2.5 py-2 transition-colors">
+                    [DAPUR]
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- NOTIFIKASI FLASH MESSAGES -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-4 mb-4 border-2 font-mono text-xs sm:text-sm flex items-center justify-between shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]
+                        {% if category == 'success' %}
+                            border-neon-lime bg-zinc-900 text-neon-lime
+                        {% elif category == 'error' %}
+                            border-neon-red bg-zinc-900 text-neon-red
+                        {% else %}
+                            border-neon-amber bg-zinc-900 text-neon-amber
+                        {% endif %}">
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold">[{{ category|upper }}]</span>
+                            <span>{{ message }}</span>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-zinc-400 hover:text-white font-black text-lg px-2">✕</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- MAIN PAGE CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- BRUTALIST FOOTER -->
+    <footer class="border-t-2 border-carbon-border bg-carbon-card/50 py-10 mt-16 font-mono text-xs text-zinc-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex flex-col items-center md:items-start gap-1">
+                <span class="font-black text-sm text-zinc-300 font-grotesk uppercase tracking-wider">OFF-PLATE ARCHIVE</span>
+                <span>KERANGKA APLIKASI WEB RESTORAN • FLASK & SQLALCHEMY</span>
+            </div>
+            <div class="flex items-center gap-4 text-zinc-400">
+                <a href="{{ url_for('index', meja=meja if meja else '07') }}" class="hover:text-neon-lime transition-colors">E-MENU (TEST QR)</a>
+                <span>•</span>
+                <a href="{{ url_for('dashboard_dapur') }}" class="hover:text-neon-lime transition-colors">KITCHEN DISPLAY SYSTEM</a>
+            </div>
+            <div class="text-center md:text-right">
+                <span class="border border-zinc-700 px-2 py-1 text-[11px] text-zinc-400 uppercase">
+                    SYS: SECURE ORM & ACCESS CONTROL
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
